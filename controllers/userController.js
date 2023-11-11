@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../model/user');
+const Itinerary = require('../model/itinerary');
 
 exports.welcome = async(req,res)=>{
   try{
@@ -81,4 +82,48 @@ exports.login=async (req, res) => {
     console.log(err);
   }
 
+}
+
+
+exports.getUserItineraries = async(req,res)=>{
+  try{
+    const { id } = req.params;
+    console.log("id",id);
+
+    const itinerary = await Itinerary.find({user:id}).populate("user",{ strictPopulate: false })
+    if (!itinerary) {
+      console.log("User not found.");
+      return res.send({
+        status: "fail",
+        message: "User not found.",
+        data: {},
+      });
+    }
+
+    console.log(`Itinerary: ${itinerary}`);
+
+    return res.send({
+      status: "success",
+      message: "User's itineraries retrieved successfully.",
+      data: itinerary,
+    });
+    
+  //  if(itinerary){
+  //   return res.send({
+  //     status:"success", 
+  //     message: 'Itinerary created successfully',
+  //     data: itinerary
+  // });
+  //  }
+  //  else{
+  //   return res.send({
+  //     status:"fail", 
+  //     message: 'Data not found',
+  //     data: {}
+  // });
+  //  }
+  }catch(error){
+    console.log(error);
+    return res.status(500).json({message:"Internal Server Error"});
+  }
 }
